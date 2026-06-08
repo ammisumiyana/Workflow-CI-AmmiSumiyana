@@ -1,8 +1,7 @@
 """
-modelling.py — Workflow CI (Kriteria 3)
+modelling.py - Workflow CI (Kriteria 3)
 Dijalankan oleh MLflow Project / GitHub Actions.
 Menerima hyperparameter via CLI.
-Tracking online ke DagsHub.
 """
 
 import mlflow
@@ -10,19 +9,19 @@ import mlflow.sklearn
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
 import os
 import argparse
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score, f1_score, precision_score,
     recall_score, roc_auc_score, confusion_matrix
 )
 
-# ── Tracking DagsHub via env var (di-set oleh GitHub Actions) ──
+# ── Tracking URI ─────────────────────────────────────────────────────────────
 mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "./mlruns"))
 
-# ── CLI Parameters ─────────────────────────────────────────────
+# ── CLI Parameters ────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser()
 parser.add_argument('--n_estimators',      type=int, default=100)
 parser.add_argument('--max_depth',         type=int, default=10)
@@ -35,14 +34,13 @@ max_depth         = args.max_depth
 min_samples_split = args.min_samples_split
 min_samples_leaf  = args.min_samples_leaf
 
-# Nilai 0 untuk max_depth → None (unlimited)
 if max_depth == 0:
     max_depth = None
 
 print(f'[CI] n_estimators={n_estimators}, max_depth={max_depth}, '
       f'min_samples_split={min_samples_split}, min_samples_leaf={min_samples_leaf}')
 
-# ── Load Data ──────────────────────────────────────────────────
+# ── Load Data ─────────────────────────────────────────────────────────────────
 X_train = pd.read_csv('heartdisease_preprocessing/X_train.csv')
 X_test  = pd.read_csv('heartdisease_preprocessing/X_test.csv')
 y_train = pd.read_csv('heartdisease_preprocessing/y_train.csv').squeeze()
@@ -50,12 +48,16 @@ y_test  = pd.read_csv('heartdisease_preprocessing/y_test.csv').squeeze()
 
 print(f'[CI] Train: {X_train.shape} | Test: {X_test.shape}')
 
-# ── Eksperimen MLflow ──────────────────────────────────────────
+# ── Set Experiment ────────────────────────────────────────────────────────────
 mlflow.set_experiment('HeartDisease-CI')
 
-with mlflow.start_run() as run:
+# ── Gunakan active run dari mlflow run, atau buat baru ────────────────────────
+active_run = mlflow.active_run()
+if active_run is None:
+    active_run = mlflow.start_run()
 
-    # ── Training ──────────────────────────────────────────────
+with active_run as run:
+    # ── Training ──────────────────────────────────────────────────────────────
     model = RandomForestClassifier(
         n_estimators=n_estimators,
         max_depth=max_depth,
@@ -69,13 +71,13 @@ with mlflow.start_run() as run:
     y_pred = model.predict(X_test)
     y_prob = model.predict_proba(X_test)[:, 1]
 
-    # ── Manual Logging Params ─────────────────────────────────
+    # ── Log Params ────────────────────────────────────────────────────────────
     mlflow.log_param('n_estimators',      n_estimators)
     mlflow.log_param('max_depth',         max_depth)
     mlflow.log_param('min_samples_split', min_samples_split)
     mlflow.log_param('min_samples_leaf',  min_samples_leaf)
 
-    # ── Manual Logging Metrics ────────────────────────────────
+    # ── Log Metrics ───────────────────────────────────────────────────────────
     acc       = accuracy_score(y_test, y_pred)
     f1        = f1_score(y_test, y_pred)
     precision = precision_score(y_test, y_pred)
@@ -88,7 +90,7 @@ with mlflow.start_run() as run:
     mlflow.log_metric('recall',    recall)
     mlflow.log_metric('roc_auc',   auc)
 
-    # ── Artifact: Confusion Matrix ────────────────────────────
+    # ── Artifact: Confusion Matrix ────────────────────────────────────────────
     cm = confusion_matrix(y_test, y_pred)
     fig, ax = plt.subplots(figsize=(5, 4))
     im = ax.imshow(cm, cmap='Blues')
@@ -109,15 +111,14 @@ with mlflow.start_run() as run:
     plt.close()
     mlflow.log_artifact('confusion_matrix.png')
 
-    # ── Log Model ─────────────────────────────────────────────
+    # ── Log Model ─────────────────────────────────────────────────────────────
     mlflow.sklearn.log_model(model, 'model')
 
-    # ── Simpan run_id ke file ─────────────────────────────────
+    # ── Simpan run_id ─────────────────────────────────────────────────────────
     run_id = run.info.run_id
     with open('latest_run_id.txt', 'w') as f:
         f.write(run_id)
 
-    # ── Ringkasan ─────────────────────────────────────────────
     print(f'\n[CI] Run ID   : {run_id}')
     print(f'[CI] Accuracy : {acc:.4f}')
     print(f'[CI] F1 Score : {f1:.4f}')
