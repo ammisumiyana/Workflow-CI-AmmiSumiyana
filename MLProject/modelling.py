@@ -53,10 +53,7 @@ print(f'[CI] Train: {X_train.shape} | Test: {X_test.shape}')
 # ── Eksperimen MLflow ──────────────────────────────────────────
 mlflow.set_experiment('HeartDisease-CI')
 
-with mlflow.start_run(
-    run_name=f'CI-RF-{n_estimators}-{max_depth}-'
-             f'{min_samples_split}-{min_samples_leaf}'
-) as run:
+with mlflow.start_run() as run:
 
     # ── Training ──────────────────────────────────────────────
     model = RandomForestClassifier(
