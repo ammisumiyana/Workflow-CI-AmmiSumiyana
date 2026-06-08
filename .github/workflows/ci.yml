@@ -1,49 +1,38 @@
 name: MLflow CI - Train Model
-
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
 jobs:
   train:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12.7'
-
       - name: Install Dependencies
         run: |
           pip install mlflow==2.19.0 scikit-learn pandas numpy matplotlib seaborn joblib dagshub
-
       - name: Run MLflow Project
         run: |
-          cd MLProject
-          python modelling.py 100 10 2 1
-
+          mlflow run MLProject --env-manager=local
       - name: Upload Artifacts to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: mlflow-artifacts-${{ github.run_number }}
           path: MLProject/mlruns/
           retention-days: 30
-
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/heartdisease-model:latest -f MLProject/Dockerfile MLProject/
-
       - name: Push to Docker Hub
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/heartdisease-model:latest
