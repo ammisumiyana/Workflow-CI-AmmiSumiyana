@@ -13,8 +13,6 @@ import matplotlib.pyplot as plt
 import sys
 import os
 import argparse
-os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv('DAGSHUB_USERNAME', '')
-os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv('DAGSHUB_TOKEN', '')
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score, f1_score, precision_score,
@@ -22,7 +20,7 @@ from sklearn.metrics import (
 )
 
 # ── Tracking DagsHub via env var (di-set oleh GitHub Actions) ──
-mlflow.set_tracking_uri("./mlruns")
+mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "./mlruns"))
 
 # ── CLI Parameters ─────────────────────────────────────────────
 parser = argparse.ArgumentParser()
