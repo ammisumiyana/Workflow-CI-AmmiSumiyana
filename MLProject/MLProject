@@ -1,7 +1,5 @@
 name: heartdisease-ml-project
-
 conda_env: conda.yaml
-
 entry_points:
   main:
     parameters:
@@ -11,7 +9,7 @@ entry_points:
       min_samples_leaf:  {type: int,   default: 1}
     command: >
       python modelling.py
-        {n_estimators}
-        {max_depth}
-        {min_samples_split}
-        {min_samples_leaf}
+        --n_estimators {n_estimators}
+        --max_depth {max_depth}
+        --min_samples_split {min_samples_split}
+        --min_samples_leaf {min_samples_leaf}
