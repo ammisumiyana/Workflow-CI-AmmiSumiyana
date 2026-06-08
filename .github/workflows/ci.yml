@@ -25,14 +25,14 @@ jobs:
 
       - name: Run MLflow Project
         run: |
-          cd $GITHUB_WORKSPACE
-          mlflow run ./MLproject --env-manager=local --experiment-name=heartdisease
+          cd $GITHUB_WORKSPACE/MLProject
+          mlflow run . --env-manager=local
         env:
-          MLFLOW_TRACKING_URI: ${{ github.workspace }}/MLproject/mlruns
+          MLFLOW_TRACKING_URI: ${{ github.workspace }}/MLProject/mlruns
 
       - name: Upload Artifacts to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: mlflow-artifacts-${{ github.run_number }}
-          path: MLproject/mlruns/
+          path: MLProject/mlruns/
           retention-days: 30
