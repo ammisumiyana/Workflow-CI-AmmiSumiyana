@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import os
+import argparse
 os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv('DAGSHUB_USERNAME', '')
 os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv('DAGSHUB_TOKEN', '')
 from sklearn.ensemble import RandomForestClassifier
@@ -24,10 +25,17 @@ from sklearn.metrics import (
 mlflow.set_tracking_uri("./mlruns")
 
 # ── CLI Parameters ─────────────────────────────────────────────
-n_estimators      = int(sys.argv[1]) if len(sys.argv) > 1 else 100
-max_depth         = int(sys.argv[2]) if len(sys.argv) > 2 else 10
-min_samples_split = int(sys.argv[3]) if len(sys.argv) > 3 else 2
-min_samples_leaf  = int(sys.argv[4]) if len(sys.argv) > 4 else 1
+parser = argparse.ArgumentParser()
+parser.add_argument('--n_estimators',      type=int, default=100)
+parser.add_argument('--max_depth',         type=int, default=10)
+parser.add_argument('--min_samples_split', type=int, default=2)
+parser.add_argument('--min_samples_leaf',  type=int, default=1)
+args = parser.parse_args()
+
+n_estimators      = args.n_estimators
+max_depth         = args.max_depth
+min_samples_split = args.min_samples_split
+min_samples_leaf  = args.min_samples_leaf
 
 # Nilai 0 untuk max_depth → None (unlimited)
 if max_depth == 0:
