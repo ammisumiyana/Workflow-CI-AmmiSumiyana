@@ -16,7 +16,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # ── Python dependencies ──────────────────────────────────────────────────────
-COPY MLProject/conda.yaml /app/conda.yaml
 RUN pip install --upgrade pip && \
     pip install \
         mlflow==2.19.0 \
