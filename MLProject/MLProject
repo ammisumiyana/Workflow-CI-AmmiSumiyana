@@ -1,7 +1,7 @@
 name: heartdisease-ml-project
 
 entry_points:
-  main:
+  main: 
     parameters:
       n_estimators:      {type: int,   default: 100}
       max_depth:         {type: int,   default: 10}
