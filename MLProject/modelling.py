@@ -21,9 +21,7 @@ from sklearn.metrics import (
 )
 
 # ── Tracking DagsHub via env var (di-set oleh GitHub Actions) ──
-mlflow.set_tracking_uri(
-    "https://dagshub.com/ammisumiyana/mlsystem-heartdisease.mlflow"
-)
+mlflow.set_tracking_uri("./mlruns")
 
 # ── CLI Parameters ─────────────────────────────────────────────
 n_estimators      = int(sys.argv[1]) if len(sys.argv) > 1 else 100
