@@ -12,7 +12,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import os
-import dagshub
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score, f1_score, precision_score,
@@ -21,7 +20,7 @@ from sklearn.metrics import (
 
 # ── Tracking DagsHub via env var (di-set oleh GitHub Actions) ──
 mlflow.set_tracking_uri(
-    "https://dagshub.com/NamaAnda/mlsystem-heartdisease.mlflow"
+    "https://dagshub.com/ammisumiyana/mlsystem-heartdisease.mlflow"
 )
 
 # ── CLI Parameters ─────────────────────────────────────────────
